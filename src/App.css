@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+.go-to-login{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  width: 30%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: #33A8FF;
+  color: white;
+  font-size: 15pt;
+  border-radius: 25px;
+}
+
+
