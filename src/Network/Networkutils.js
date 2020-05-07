@@ -17,17 +17,19 @@ class NetworkUtils{
   //           console.log(error)
   //       })
  	console.log("Body: "+JSON.stringify(body));
+
+  return new Promise((resolve, reject) => {
   	axios.post(url, body)
   .then(function (response) {
     console.log(response);
-    caller(response);
+    resolve(response);
   })
   .catch(function (error) {
     console.log(error);
-    caller(error);
+    reject(error);
   });
 
-
+});
 
 	}
 

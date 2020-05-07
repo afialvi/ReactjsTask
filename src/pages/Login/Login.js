@@ -20,6 +20,8 @@ import insecureEntry from './images/insecure-entry.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import NetworkUtils from '../../Network/Networkutils';
 import { createStore } from 'redux';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 class Login extends React.Component {
@@ -35,10 +37,10 @@ class Login extends React.Component {
     	super(props);
     	this.state = {userDoesNotExist: false, emailDoesNotExist: false, emailValue: "", passwordValue: "", isEmail: false, noUserEntered: false, incorrectPassword: false, securedPwdEntry: true};
     	this.handleChange = this.handleChange.bind(this);
-    	this.handleKeyDown = this.handleKeyDown.bind(this);
     	this.handlePasswordChange = this.handlePasswordChange.bind(this);
     	this.toggleSecuredPwdEntry = this.toggleSecuredPwdEntry.bind(this);
     	this.login = this.login.bind(this);
+    	this.showLoginSuccessAlert = this.showLoginSuccessAlert.bind(this);
     	this.store = createStore(this.reducer);
   	}
 
@@ -46,25 +48,43 @@ class Login extends React.Component {
   	
   	login(){
   		let body = {
-  				"usernameEmail": this.state.emailValue,
+  				"email": this.state.emailValue,
   				"password": this.state.passwordValue,
   				"isEmail": this.state.isEmail,
   			}
   			console.log("Credentials Body: "+ JSON.stringify(body));
-  			NetworkUtils.postRequest("https://www.api.worksimplr.com/api/v1/users/sign-in/", body, (resp)=>{
+  			NetworkUtils.postRequest("https://www.api.worksimplr.com/api/v1/users/sign-in/", body).then(resp=>{
   				if(resp.data != undefined && resp.data != null){
-	  				if (resp.data.message !== "User Exists"){
-	  					
+	  				if (resp.data.message == "Successfully Logged In"){
+	  					let access_token = resp.data.payload.accessToken;
+	  					let refresh_token = resp.data.payload.accessToken;
+	  					console.log("Access Token: "+ access_token);
+	  					this.showLoginSuccessAlert();
 	  				}
 	  				else{
 	  					
 	  				}
   				}
+  			}).catch( resp =>{
+  				console.log("Error : "+ JSON.stringify(resp));
+  				this.showLoginFailureAlert();
   				if(resp.name == "Error"){
   					console.log("Error is thrown");
   					
   				}
   			});
+  	}
+
+  	componentDidMount(){
+  		toast.configure();
+
+  	}
+
+  	showLoginSuccessAlert(){
+  		toast('Logged in Successfully');
+  	}
+  	showLoginFailureAlert(){
+  		toast('Invalid Credentials. Login Failed!');
   	}
 
 
@@ -112,13 +132,7 @@ class Login extends React.Component {
     	}
     }
 
-  	handleKeyDown(e) {
-
-        if (e.keyCode === 13) {
-        	
-
-        }
-    }
+  	
   	checkUserExists = (userEmailOrName, isEmail) => {
   		console.log("Emaaail: "+ this.state.emailValue);
   			let body = {
@@ -126,7 +140,7 @@ class Login extends React.Component {
   				"isEmail": isEmail
   			}
   			console.log("Calling with user: "+this.state.emailValue)
-  			NetworkUtils.postRequest("https://www.api.worksimplr.com/api/v1/users/check-user-exists/", body, (resp)=>{
+  			NetworkUtils.postRequest("https://www.api.worksimplr.com/api/v1/users/check-user-exists/", body).then( resp=>{
   				console.log("My Resp: "+JSON.stringify(resp));
   				if(resp.data != undefined && resp.data != null){
 	  				if (resp.data.message !== "User Exists"){
@@ -140,7 +154,7 @@ class Login extends React.Component {
 	  				else{
 	  					this.store.dispatch({type:"SET_STATE", value:{userDoesNotExist: false, emailDoesNotExist: false}});
 	  				}
-  				}
+  				}}).catch(resp => {
   				if(resp.name == "Error"){
   					console.log("Error is thrown");
   					if(this.state.isEmail){
@@ -162,7 +176,7 @@ class Login extends React.Component {
 					<p className="title-text"><b>Log In</b></p>
 					<div className="input-container">
 					<div className="input-div">
-						<Input size="large" placeholder="Username or Email ID" className="usernm-input" onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+						<Input size="large" placeholder="Username or Email ID" className="usernm-input" onChange={this.handleChange} />
 					</div>
 					<div className="left-image-div">
 						<img src={UserGrey} className="left-img-user" />
