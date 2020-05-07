@@ -1,7 +1,7 @@
 import axios from 'axios';
 class NetworkUtils{
 
-	static postRequest(url, body, caller){
+	static postRequest(url, body){
 		// fetch(url, {
 		// 	  method: 'POST',
 		// 	  headers: {
